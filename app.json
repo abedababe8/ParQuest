@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "sdkVersion": "27.0.0",
+    "name": "Awesome Project",
+    "icon": "./park-icon.png",
+    "version": "1.0.0",
+    "slug": "exp://mr-7hs.abedababe8.awesomeproject.exp.direct:80",
+    "ios": {
+      "bundleIdentifier": "com.awesome.project",
+      "config": {
+        "googleMapsApiKey": "AIzaSyAKJj3uYvO-tsFtjysFQQFlwkywIzQh1WQ"
+      }
+    },
+    "android": {
+      "package": "com.awesome.project"
+    }
+  }
+}
