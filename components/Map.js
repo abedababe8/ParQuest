@@ -2,6 +2,8 @@ import React from 'React'
 import { Text, View, Button, Image, Platform } from 'react-native';
 import { MapView, Permissions, Location } from 'expo';
 import dayMap from '../dayMap.json'
+import SweetCarousel from './Carousel'
+import PoiPress from './PoiPress'
 
 
 class Map extends React.Component {
@@ -173,40 +175,14 @@ class Map extends React.Component {
       }
         {
           this.state.currentPark
-          ? <View style={{flex: 3, flexDirection: 'row'}}>
-              <View style={{flex: 1, backgroundColor: 'powderblue'}}>
-                <Image
-                  style={{flex: 1}}
-                  source={{uri: `${this.state.currentParkURL}`}}
-                />
-              </View>
-              <View style={{flex: 1, flexDirection: 'column'}}>
-                <View style={this.props.ratingCont}>
-                  <Text style={this.props.rating}>{`${this.state.currentPark.rating}/5`}</Text>
-                </View>
-                <View style={this.props.ratingCont}>
-                  <Button
-                    onPress={() => {
-                      if(this.state.my_list.some((ele) =>  {
-                        return ele.currentPark.id === this.state.currentPark.id
-                      }
-                    )){
-                        console.log('Already in List!!')
-                      } else {
-                        const finalPark = {
-                        currentPark: this.state.currentPark,
-                        imageUrl: this.state.currentParkURL,
-                        }
-                        this.props.add_to_m_l(finalPark)
-                      }
-                    }}
-                    title="Add to MyList"
-                    color="#841584"
-                    accessibilityLabel="Button that adds park to MyList"
-                  />
-                </View>
-              </View>
-            </View>
+          ? <PoiPress
+            currentPark={this.state.currentPark}
+            currentParkURL={this.state.currentParkURL}
+            my_list={this.state.my_list}
+            ratingCont={this.props.ratingCont}
+            rating={this.props.rating}
+            add_to_m_l={this.props.add_to_m_l}
+          />
           : null
         }
       </View>
