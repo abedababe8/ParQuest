@@ -17,7 +17,7 @@ const MyList = ({ container, leftButtonHandler, my_list, renderItem }) => (
     <FlatList
       keyExtractor={(item, index) => index}
       data={my_list}
-      renderItem={({item}) => { console.log(my_list); return <ListCard item={item} />}}
+      renderItem={({item}) => { return <ListCard item={item} />}}
     />
   </View>
 )

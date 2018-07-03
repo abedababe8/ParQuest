@@ -1,5 +1,8 @@
 import React from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 import { View, FlatList, Button, Picker } from 'react-native';
+import getParks from '../redux/actions.js'
 import NavigationBar from 'react-native-navbar';
 
 
@@ -51,4 +54,6 @@ const ParkSearch = ({container, leftButtonHandler, showPark, showPicker, showPic
       }
   </View>
 )
-export default ParkSearch
+const mapStateToProps = ({parkList}) => ({parkList})
+const mapDispatchToProps = (dispatch) => bindActionCreators({ getParks }, dispatch)
+export default connect(mapStateToProps, mapDispatchToProps)(ParkSearch)

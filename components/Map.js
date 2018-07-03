@@ -1,10 +1,11 @@
 import React from 'React'
-import { Text, View, Button, Image, Platform } from 'react-native';
+import { Text, View, Button, Image, Platform, Dimensions } from 'react-native';
 import { MapView, Permissions, Location } from 'expo';
 import dayMap from '../dayMap.json'
 import SweetCarousel from './Carousel'
 import PoiPress from './PoiPress'
 
+const SCREEN_HEIGHT = Dimensions.get("window").height - 50;
 
 class Map extends React.Component {
   constructor(props){
@@ -15,6 +16,10 @@ class Map extends React.Component {
       parks: null,
       currentPark: null,
       currentParkURL: null,
+      nextPark: null,
+      nextParkURL: null,
+      prevPark: null,
+      prevParkURL: null,
       my_list: this.props.my_list,
       errorMessage: null,
       location: this.props.location
@@ -30,7 +35,15 @@ class Map extends React.Component {
       this.getParks()
     }
   }
-
+  // park is of this.state.parks
+  animateToPoi = (park) => {
+    this.mapView.animateToRegion({
+      latitude: park.coords.latitude,
+      longitude: park.coords.longitude,
+      latitudeDelta: Math.abs(park.geometry.viewport.northeast.lat - park.geometry.viewport.southwest.lat),
+      longitudeDelta: Math.abs(park.geometry.viewport.northeast.lng - park.geometry.viewport.southwest.lng)
+      }, 500 )
+  }
   getParks = () => {
     fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${this.state.location.coords.latitude},${this.state.location.coords.longitude}&radius=${this.state.radius}&type=park&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
     .then(res => {
@@ -92,16 +105,45 @@ class Map extends React.Component {
     return d
   }
 
-  markerPress(park){
-    fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.place_id}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
+  markerPress(park, parks){
+    // console.log(parks, parks.indexOf(park))
+    let nextPark;
+    let prevPark;
+    if(parks.indexOf(park) === parks.length - 1){
+      nextPark = parks[0]
+      prevPark = parks[parks.indexOf(park) - 1]
+    } else if (parks.indexOf(park) === 0){
+      nextPark = parks[parks.indexOf(park) + 1]
+      prevPark = parks[parks.length - 1]
+    } else {
+      nextPark = parks[parks.indexOf(park) + 1]
+      prevPark = parks[parks.indexOf(park) - 1]
+    }
+    // console.log(nextPark)
+    Promise.all([
+    fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.place_id}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`),
+    fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${nextPark.place_id}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`),
+    fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${prevPark.place_id}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
+  ])
     .then(response => {
-      return response.json()
-    })
+      Promise.all(response.map(res => {
+        return res.json()
+      })
+    ).then(results => {
+
+      console.log(11111111, prevPark)
+      console.log(22222222, nextPark)
+      console.log(33333333, results[2].result)
+      console.log(44444444, results[1].result)
+
+      this.setState({currentPark: results[0].result, nextPark: results[2].result, prevPark: results[2].result})
+      Promise.all([
+      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${park.photos[0].photo_reference}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`),
+      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${nextPark.photos[0].photo_reference}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`),
+      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${prevPark.photos[0].photo_reference}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
+    ])
     .then(res => {
-      this.setState({currentPark: res.result})
-      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${park.photos[0].photo_reference}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
-    .then(res => {
-      this.setState({currentParkURL: res.url})
+      this.setState({currentParkURL: res[0].url, nextParkURL: res[1].url, prevParkURL: res[2].url})
       this.mapView.animateToRegion({
         latitude: park.coords.latitude,
         longitude: park.coords.longitude,
@@ -110,13 +152,14 @@ class Map extends React.Component {
         }, 500 )
       })
     })
-  }
+  })
+}
 
   render(){
     const self = this
     return (
       <View style={this.props.container}>
-        <View style={{flex: 1, flexDirection: 'row'}}>
+        <View style={{height:50, flexDirection: 'row'}}>
           <Button
             onPress={this.props.hideMap}
             style={this.props.mapButton}
@@ -144,10 +187,9 @@ class Map extends React.Component {
               onUserLocationChange={event => this.setState({location:event.nativeEvent})}
               customMapStyle={dayMap}
               showsCompass
-              style={{flex: 8, alignSelf: 'stretch' }}
+              style={{height: SCREEN_HEIGHT - 20}}
               provider="google"
               showsUserLocation={true}
-              showsMyLocationButton={true}
               initialRegion={{
                 latitude: this.props.location.coords.latitude,
                 longitude: this.props.location.coords.longitude,
@@ -158,14 +200,14 @@ class Map extends React.Component {
             >
             {
               this.state.parks
-              ? this.state.parks.map((park, index) => (
+              ? this.state.parks.map((park, index, parks) => (
                       <MapView.Marker
                         key={index}
                         coordinate={park.coords}
                         pinColor={'green'}
                         title={park.name}
                         description={`${Math.round(this.getDistance(this.props.location.coords, park.coords)).toFixed(0)} meters away`}
-                        onPress={() => this.markerPress(park)}
+                        onPress={() => this.markerPress(park, parks)}
                       />
                ))
               : null
@@ -175,14 +217,20 @@ class Map extends React.Component {
       }
         {
           this.state.currentPark
-          ? <PoiPress
+          ?
+          <View style={{flex: 5}}>
+            <SweetCarousel
+            parks={this.state.parks}
             currentPark={this.state.currentPark}
             currentParkURL={this.state.currentParkURL}
-            my_list={this.state.my_list}
-            ratingCont={this.props.ratingCont}
-            rating={this.props.rating}
+            nextPark={this.state.nextPark}
+            nextParkURL={this.state.nextParkURL}
+            prevPark={this.state.prevPark}
+            prevParkURL={this.state.prevParkURL}
             add_to_m_l={this.props.add_to_m_l}
-          />
+            ratingCont={this.props.ratingCont}
+            rating={this.props.rating}/>
+          </View>
           : null
         }
       </View>
