@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 import {
   Animated,
   Dimensions,
@@ -9,92 +11,32 @@ import {
   Image,
   Button
 } from "react-native";
-import PoiPress from './PoiPress'
+import {Rating} from 'react-native-elements'
+import {add_to_m_l} from '../redux/actions.js'
+import styles from '../styles.js'
+
+import Screen from './Screen.js'
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const xOffset = new Animated.Value(0);
 
-const Screen = props => {
-  return (
-    <View style={styles.scrollPage}>
-      <Animated.View style={[styles.screen, transitionAnimation(props.index)]}>
-        <View style={{flex: 1, backgroundColor: 'powderblue'}}>
-          <Image
-            style={{flex: 1}}
-            source={{uri: `${props.parkURL}`}}
-          />
-        </View>
-        <View style={{flex: 1, flexDirection: 'column'}}>
-          <View style={props.ratingCont}>
-            <Text style={props.rating}>{`${props.park.rating}/5`}</Text>
-          </View>
-          <View style={props.ratingCont}>
-            <Button
-              onPress={() => {
-                if(my_list.some((ele) =>  {
-                  return ele.currentPark.id === park.id
-                }
-              )){
-                  console.log('Already in List!!')
-                } else {
-                  const finalPark = {
-                  currentPark: park,
-                  imageUrl: parkURL,
-                  }
-                  props.add_to_m_l(finalPark)
-                }
-              }}
-              title="Add to MyList"
-              color="#841584"
-              accessibilityLabel="Button that adds park to MyList"
-            />
-          </View>
-        </View>
-      </Animated.View>
-    </View>
-  );
-};
+class Carousel extends Component {
 
-const transitionAnimation = index => {
-  return {
-    transform: [
-      { perspective: 800 },
-      {
-        scale: xOffset.interpolate({
-          inputRange: [
-            (index - 1) * SCREEN_WIDTH,
-            index * SCREEN_WIDTH,
-            (index + 1) * SCREEN_WIDTH
-          ],
-          outputRange: [0.25, 1, 0.25]
-        })
-      },
-      {
-        rotateX: xOffset.interpolate({
-          inputRange: [
-            (index - 1) * SCREEN_WIDTH,
-            index * SCREEN_WIDTH,
-            (index + 1) * SCREEN_WIDTH
-          ],
-          outputRange: ["45deg", "0deg", "45deg"]
-        })
-      },
-      {
-        rotateY: xOffset.interpolate({
-          inputRange: [
-            (index - 1) * SCREEN_WIDTH,
-            index * SCREEN_WIDTH,
-            (index + 1) * SCREEN_WIDTH
-          ],
-          outputRange: ["-45deg", "0deg", "45deg"]
-        })
-      }
-    ]
-  };
-};
+  handleMomentumScrollEnd = (e) => {
+    let carouselIndex = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH)
+    if(carouselIndex === 0){
+      this.props.animateToPoi(this.props.currentPark.og)
+    }
+    if(carouselIndex === 1){
+      this.props.animateToPoi(this.props.nextPark.og)
+    }
+    if(carouselIndex === 2){
+      this.props.animateToPoi(this.props.prevPark.og)
+    }
 
-export default class Carousel extends Component {
+  }
+
   render() {
     return (
       <Animated.ScrollView
@@ -103,36 +45,31 @@ export default class Carousel extends Component {
           [{ nativeEvent: { contentOffset: { x: xOffset } } }],
           { useNativeDriver: true }
         )}
+        onMomentumScrollEnd = {this.handleMomentumScrollEnd}
         horizontal
         pagingEnabled
         style={styles.scrollView}
       >
-        <Screen ratingCont={this.props.ratingCont} rating={this.props.rating} add_to_m_l={this.props.add_to_m_l} park={this.props.currentPark} parkURL={this.props.currentParkURL} index={0} />
-        <Screen ratingCont={this.props.ratingCont} rating={this.props.rating} add_to_m_l={this.props.add_to_m_l} park={this.props.nextPark} parkURL={this.props.nextParkURL} index={1} />
-        <Screen ratingCont={this.props.ratingCont} rating={this.props.rating} add_to_m_l={this.props.add_to_m_l} park={this.props.prevPark} parkURL={this.props.prevParkURL} index={2} />
+        <Screen authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.currentPark.info} parkURL={this.props.currentPark.url} index={0} />
+        <Screen authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.nextPark.info} parkURL={this.props.nextPark.url} index={1} />
+        <Screen authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.prevPark.info} parkURL={this.props.prevPark.url} index={2} />
       </Animated.ScrollView>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  scrollView: {
-    flexDirection: "row",
-    marginTop: -250
-  },
-  scrollPage: {
-    width: SCREEN_WIDTH,
-    padding: 20
-  },
-  screen: {
-    height: 200,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 25,
-    backgroundColor: "white"
-  },
-  text: {
-    fontSize: 45,
-    fontWeight: "bold"
-  }
-});
+const mapStateToProps = ({
+  authState,
+  parks,
+  selectedPark,
+  my_list }) =>
+  ({
+    authState,
+    parks,
+    selectedPark,
+    currentPark: selectedPark.currentPark,
+    nextPark: selectedPark.nextPark,
+    prevPark:selectedPark.prevPark,
+    my_list })
+const mapDispatchToProps = (dispatch) => bindActionCreators({ add_to_m_l }, dispatch)
+export default connect(mapStateToProps, mapDispatchToProps)(Carousel)

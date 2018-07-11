@@ -1,30 +1,27 @@
 import React from 'react';
+// import { RNCamera } from 'react-native-camera';
+
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { StyleSheet, Text, View, Button, Platform, Image, Picker, FlatList } from 'react-native';
-import { Constants, Location, Permissions, MapView } from 'expo';
-import { Card, Icon, Rating } from 'react-native-elements'
-import NavigationBar from 'react-native-navbar';
+import { Platform } from 'react-native';
+import { Constants } from 'expo';
+import { AsyncStorage } from "react-native"
+
 import Map from './Map'
 import MyList from './MyList'
 import ParkSearch from './ParkSearch'
+import Signin from './Signin'
+import ExampleCamera from './CameraExample'
 
-import getParks from '../redux/actions.js'
-import getLocation from '../redux/actions.js'
+import {getParks, getLocation, getActivs, loginIfTokenPresent, logout, get_m_l} from '../redux/actions.js'
+
+import styles from '../styles.js'
 
 class Main extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      showMap: false,
-      location: null,
-      errorMessage: null,
-      parks: null,
-      currentPark: null,
-      radius: 500,
-      next_page_token: null,
-      my_list: [],
-      showMyList: false
+
     }
   }
 
@@ -34,111 +31,36 @@ class Main extends React.Component {
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
       });
     } else {
-      this._getLocationAsync()
+      this.props.loginIfTokenPresent()
     }
   }
 
-  _getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== 'granted') {
-      this.setState({
-        errorMessage: 'Permission to access location was denied',
-      });
+  componentDidMount(){
+                      //this.props.authState
+    this.props.getLocation()
+  }
+  componentDidUpdate(prevProps){
+    if(this.props.authState !== prevProps.authState && this.props.authState){
+      this.props.get_m_l(this.props.authState)
     }
-    let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location })
-  };
-
-// renderItem = ({ item }) => (
-//   <ListCard item={item} />
-// )
-
+  }
 
   render() {
-    this.props.getLocation()
-    if(this.state.showMap === false){
-      if(this.state.showMyList === true){
-        return (
-          <MyList
-            my_list={this.state.my_list}
-            container={styles.container}
-            leftButtonHandler={() => {
-              this.setState({showMyList: !this.state.showMyList})
-            }}
-          />
-        )
-      } else {
-        return (
-          <ParkSearch
-            container={styles.container}
-            leftButtonHandler={() => {
-              this.setState({showMyList: !this.state.showMyList})
-            }}
-            showPark={() => {
-              console.log(this.props.location)
-              this.setState({showMap:true});
-            }}
-            showPicker={() => {
-              console.log(this.props.parkList, this.props, getParks)
-              this.props.getParks()
-              this.setState({showPicker:!this.state.showPicker});
-              console.log(this.props.parkList)
-            }}
-            showPickerState={this.state.showPicker}
-            radius={this.state.radius}
-            radiusChange={(itemValue, itemIndex) => this.setState({radius: itemValue})}
-            />
-        )
-      }
+    if(!this.props.token){
+      return <Signin />
     } else {
-      return (
-        <Map
-          container={styles.container}
-          mapButton={styles.mapButton}
-          ratingCont={styles.ratingCont}
-          rating={styles.rating}
-          location={this.state.location}
-          radius={this.state.radius}
-          my_list={this.state.my_list}
-          add_to_m_l={(toAdd) => {
-            if(!this.state.my_list.find(ele => ele === toAdd)){
-              this.setState({my_list: [...this.state.my_list, toAdd]})
-            }
-          }}
-          hideMap={() => {
-            this.setState({showMap:false})
-          }}
-        />
-      )
+      if(this.props.showMap){
+        return <Map />
+      }
+      if(this.props.showMyList){
+        return <MyList />
+      }
+      if(this.props.showSearch){
+        return <ParkSearch />
+      }
     }
   }
 }
-const mapStateToProps = ({parkList, location}) => ({parkList, location})
-const mapDispatchToProps = (dispatch) => bindActionCreators({ getParks, getLocation }, dispatch)
+const mapStateToProps = ({ authState, showMap, showMyList, showSearch, token}) => ({ authState, showMap, showMyList, showSearch, token})
+const mapDispatchToProps = (dispatch) => bindActionCreators({ getParks, logout, getLocation, getActivs, loginIfTokenPresent, get_m_l }, dispatch)
 export default connect(mapStateToProps, mapDispatchToProps)(Main)
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: Constants.statusBarHeight,
-    backgroundColor: '#fff',
-  },
-  mapContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  mapButton: {
-    marginTop: '10px',
-  },
-  ratingCont: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'green',
-  },
-  rating: {
-    fontFamily: 'Cochin',
-    fontSize: 50,
-    fontWeight: 'bold'
-  }
-});
