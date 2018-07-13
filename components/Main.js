@@ -21,8 +21,12 @@ class Main extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-
+      mapRef: null
     }
+  }
+
+  setMapRef = (mapRef) => {
+    this.setState({mapRef})
   }
 
   componentWillMount() {
@@ -50,10 +54,10 @@ class Main extends React.Component {
       return <Signin />
     } else {
       if(this.props.showMap){
-        return <Map />
+        return <Map setMapRef={this.setMapRef} mapRef={this.state.mapRef}/>
       }
       if(this.props.showMyList){
-        return <MyList />
+        return <MyList mapRef={this.state.mapRef}/>
       }
       if(this.props.showSearch){
         return <ParkSearch />

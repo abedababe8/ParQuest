@@ -39,7 +39,7 @@ export default class CameraExample extends React.Component {
               }}>
               <TouchableOpacity
                 style={{
-                  flex: 0.1,
+                  flex: 1,
                   alignSelf: 'flex-end',
                   alignItems: 'center',
                 }}
@@ -57,7 +57,7 @@ export default class CameraExample extends React.Component {
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
-                  flex: 0.1,
+                  flex: 1,
                   alignSelf: 'flex-end',
                   alignItems: 'center',
                 }}
@@ -67,6 +67,20 @@ export default class CameraExample extends React.Component {
                 <Text
                   style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>
                   {' '}Snap{' '}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  alignSelf: 'flex-end',
+                  alignItems: 'center',
+                }}
+                onPress={() => {
+                  this.props.showCamera()
+                }}>
+                <Text
+                  style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>
+                  {' '}Close{' '}
                 </Text>
               </TouchableOpacity>
             </View>

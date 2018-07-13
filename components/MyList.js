@@ -3,7 +3,7 @@ import ExampleCamera from './CameraExample'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { View, FlatList } from 'react-native';
+import { View, FlatList, ImageBackground, Text } from 'react-native';
 import NavigationBar from 'react-native-navbar';
 import ListCard from './ListCard'
 import { getActivs, toggleMap, toggleList} from '../redux/actions.js'
@@ -39,34 +39,45 @@ class MyList extends React.Component {
   }
 
   render(){
-    if(this.state.showCamera){
-      return < ExampleCamera />
-    } else {
     return(
       <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <ImageBackground style={{
+        flex: 1,
+        alignSelf: 'stretch',
+      }}
+      source={require('../top-view-forrest.jpg')}
+      >
         <View style={{ backgroundColor: '#ff9900', }}>
           <NavigationBar
+            containerStyle={{backgroundColor:'#33cc33'}}
             title={{ title: 'My List', }}
             leftButton={{ title: 'Search',
-                          tintColor: '#33cc33',
+                          tintColor: '#fff',
                           handler: () => {
                             this.props.toggleList()
                           } }}
             rightButton={{title: 'Map',
-                          tintColor: '#33cc33',
+                          tintColor: '#fff',
                           handler: () => {
                             this.props.toggleMap()
                             this.props.toggleList()
                           }  }} />
         </View>
-        <FlatList
-          data={this.props.my_list}
-          renderItem={({item}) => { return <ListCard item={item} toggleMap={this.props.toggleMap} toggleList={this.props.toggleList} showCamera={() => {this.setState({showCamera: true})}} getDistance={this.getDistance} location={this.props.location}/>}}
-          keyExtractor={(item, index) => index.toString()}
-        />
+        {
+          this.state.showCamera
+          ? < ExampleCamera showCamera={() => {this.setState({showCamera: !this.state.showCamera})}}/>
+          : this.props.my_list.length
+          ? <FlatList
+              data={this.props.my_list}
+              renderItem={({item}) => { return <ListCard item={item} showCamera={() => {this.setState({showCamera: !this.state.showCamera})}} getDistance={this.getDistance} mapRef={this.props.mapRef}/>}}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          : <Text style={{textAlign: 'center', fontWeight: 'bold', color: '#fff', fontSize: 35}}>No parks in your List yet, add them from the Map!</Text>
+        }
+        </ImageBackground>
+
       </View>
     )
-  }
   }
 }
 const mapStateToProps = ({location, activs, authState, my_list}) => ({location, activs, authState, my_list})

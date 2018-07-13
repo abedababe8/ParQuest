@@ -25,18 +25,18 @@ class Map extends React.Component {
   // park is of this.state.parks
   animateToPoi = (park) => {
     setTimeout(() => {
-      this.mapView.animateToRegion({
+      this.props.mapRef.animateToRegion({
         latitude: park.coords.latitude,
         longitude: park.coords.longitude,
-        latitudeDelta: Math.abs(park.geometry.viewport.northeast.lat - park.geometry.viewport.southwest.lat),
+        latitudeDelta: Math.abs(park.geometry.viewport.northeast.lat - park.geometry.viewport.southwest.lat + .013),
         longitudeDelta: Math.abs(park.geometry.viewport.northeast.lng - park.geometry.viewport.southwest.lng)
       }, 700 )
     }, 700)
-    this.mapView.animateToRegion({
+    this.props.mapRef.animateToRegion({
       latitude: this.props.location.coords.latitude,
       longitude: this.props.location.coords.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
+      latitudeDelta: 0.0620,
+      longitudeDelta: 0.0620,
     }, 1000)
   }
 
@@ -55,6 +55,24 @@ class Map extends React.Component {
     var d = R * c;
     return d
   }
+  manageMapRef = (node) => {
+    this.mapView = node
+    this.props.setMapRef(node)
+  }
+
+  // initialRegionFinder(){
+  //   console.log(this.props.initialRegion)
+  //   if(this.props.initialRegion){
+  //     return this.props.initialRegion
+  //   } else {
+  //     return {
+  //       latitude: this.props.location.coords.latitude,
+  //       longitude: this.props.location.coords.longitude,
+  //       latitudeDelta: 0.0420,
+  //       longitudeDelta: 0.0420,
+  //     }
+  //   }
+  // }
 
   render(){
     const self = this
@@ -103,10 +121,10 @@ class Map extends React.Component {
               initialRegion={{
                 latitude: this.props.location.coords.latitude,
                 longitude: this.props.location.coords.longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
+                latitudeDelta: 0.0420,
+                longitudeDelta: 0.0420,
               }}
-              ref = {domNode => { this.mapView = domNode }}
+              ref={this.manageMapRef}
             >
             {
               this.props.parks

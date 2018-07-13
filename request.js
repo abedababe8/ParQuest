@@ -9,7 +9,7 @@ async function request(path, method = 'get', body = null) {
     bearerToken = `Bearer ${token}`
   }
 
-  return axios(`http://10.5.81.233:5000${path}`, {
+  return axios(`http://10.5.2.148:5000${path}`, {
     method: method,
     headers: {
       'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ async function request(path, method = 'get', body = null) {
     data: body
   })
   .catch(function(error){
-    console.log(error)
+    // console.log(error)
     return Promise.reject(error)
   })
 }

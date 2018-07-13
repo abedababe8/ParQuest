@@ -15,11 +15,22 @@ export const AUTH_STATE = 'AUTH_STATE'
 export const TOG_ML = 'TOG_ML'
 export const TOG_SER = 'TOG_SER'
 export const TOG_MAP = 'TOG_MAP'
+export const TOG_MAP_AT = 'TOG_MAP_AT'
 export const GET_ML = 'GET_ML'
-
+export const REM_ML = 'REM_ML'
 // const getLoc = async () => {
 //   { status } = await Permissions.askAsync(Permissions.LOCATION);
 // }
+
+export const newUser = (new_username, new_password) => {
+  return async (dispatch) => {
+    request('/users/', 'post', {new_username, new_password})
+    .then(response => {
+      dispatch(login(new_username, new_password))
+    })
+    .catch(error => console.log(error))
+  }
+}
 
 export const getLocation = () => {
   return async (dispatch) => {
@@ -39,7 +50,7 @@ export const getLocation = () => {
     }
   }
 }
-
+/////////////  PARK ACTIONS /////////////
 
 export const getParks = (location, radius) => {
   return async (dispatch) => {
@@ -177,7 +188,6 @@ export const markerPress = (park, parks) => {
 
     Promise.all([getParkInfo, getParkUrl])
     .then(([parkInfo, parkUrl]) => {
-      console.log(parkUrl[1].url, parkUrl[0].url)
       const parks = {
         currentPark: {info: parkInfo[0].result, url: parkUrl[0].url, og: park},
         nextPark: {info: parkInfo[1].result, url: parkUrl[1].url, og: nextPark},
@@ -191,6 +201,10 @@ export const markerPress = (park, parks) => {
     })
   }
 }
+
+/////////////  MY LIST ACTIONS /////////////
+
+
 export const get_m_l = (userId) => {
   return async (dispatch) => {
     request(`/users/${userId}/favs`)
@@ -242,30 +256,47 @@ export const add_to_m_l = (toAdd, my_list, userId) => {
   }
 }
 
+export const remove_m_l = (parkId, userId) => {
+  return async (dispatch) => {
+    request(`/users/${userId}/favs/${parkId}`, 'delete')
+    .then(response => {
+      dispatch({
+        type: REM_ML,
+        payload: parkId
+      })
+    })
+    .catch(error => console.log(error))
+  }
+}
+
+/////////////  ACTIV ACTIONS /////////////
+
+
 export const getActivs = (id) => {
   return async (dispatch) => {
-    fetch(`http://10.5.81.233:5000/users/${id}/activ`)
-    .then(response => {
-      return response.json()
-    })
+    request(`/users/${id}/activ`)
+    // .then(response => {
+    //   console.log(response)
+    //   return response.json()
+    // })
     .then(res => {
       dispatch({
         type: GET_ACS,
-        payload: res
+        payload: res.data
       })
     })
-    .catch(error => {
-      throw error
-    })
+    .catch(error => console.log(error))
   }
 }
+
+
+/////////////  LOGIN ACTIONS /////////////
 
 
 export const login = (username,password) => (
   dispatch => {
     request('/auth/token', 'post', {username, password})
     .then(response => {
-      console.log(response)
       const {token} = response.data
       AsyncStorage.setItem('token', token)
       return token
@@ -306,13 +337,28 @@ export const logout = () => (
   }
 )
 
-export const toggleMap = () => {
+/////////////  TOGGLE/NAV ACTIONS /////////////
+
+
+export const toggleMap = (park = null) => {
   return async (dispatch) => {
-    dispatch({
-      type: TOG_MAP
-    })
+    // if(park){
+    //   dispatch({
+    //     type: TOG_MAP_AT,
+    //     payload: {
+    //       latitude: park.geometry.location.lat,
+    //       longitude: park.geometry.location.lng,
+    //       latitudeDelta: 0.0420,
+    //       longitudeDelta: 0.0420
+    //     }
+    //   })
+    // } else {
+      dispatch({
+        type: TOG_MAP
+      })
+    }
   }
-}
+// }
 export const toggleSearch = () => (
   dispatch => {
     dispatch({

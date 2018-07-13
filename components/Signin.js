@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux'
 import styles from '../styles.js'
 import { View, KeyboardAvoidingView } from 'react-native';
 import  request  from '../request.js'
-import {login} from '../redux/actions.js'
+import {login, newUser} from '../redux/actions.js'
 import { FormLabel, FormInput, Divider, Icon, Button } from 'react-native-elements';
 
 class Signin extends Component {
@@ -17,18 +17,7 @@ class Signin extends Component {
       new_password: null,
     }
   }
-  handleSignin(event){
-    let username = this.state.username
-    let password = this.state.password
-    this.props.login(username, password)
-  }
 
-  handleSignup(event){
-    let new_username = this.state.new_username
-    let new_password = this.state.new_password
-
-
-  }
   render(){
 
     return (
@@ -57,7 +46,9 @@ class Signin extends Component {
           backgroundColor={'#33cc33'}
           rightIcon={{name: 'code'}}
           title='Signin'
-          onPress={this.handleSignin.bind(this)}/>
+          onPress={()=>{
+            this.props.login(this.state.username, this.state.password)
+          }}/>
 
 
         <Divider style={{ backgroundColor: 'blue' }} />
@@ -89,7 +80,9 @@ class Signin extends Component {
           backgroundColor={'#33cc33'}
           rightIcon={{name: 'code'}}
           title='Signup'
-          onPress={this.handleSignup.bind(this)}/>
+          onPress={()=>{
+            this.props.newUser(this.state.new_username, this.state.new_password)
+          }}/>
     </KeyboardAvoidingView>
       // <View style={styles.container}>
       //   <Input
@@ -107,5 +100,5 @@ class Signin extends Component {
 }
 
 // const mapStateToProps = ({ }) => ({ })
-const mapDispatchToProps = (dispatch) => bindActionCreators({ login }, dispatch)
+const mapDispatchToProps = (dispatch) => bindActionCreators({ login, newUser }, dispatch)
 export default connect(null, mapDispatchToProps)(Signin)
