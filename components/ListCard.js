@@ -2,10 +2,11 @@ import React from 'react'
 import request from '../request.js'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { View, Text, Button, FlatList, AlertIOS } from 'react-native'
+import { View, Text, Button, FlatList, AlertIOS, CameraRoll, Image } from 'react-native'
 import {Card, Icon, Rating, Divider} from 'react-native-elements'
+import Expo, {Permissions} from 'expo'
 
-import { toggleMap, toggleList, remove_m_l } from '../redux/actions.js'
+import { favToMap, toggleMap, toggleList, remove_m_l } from '../redux/actions.js'
 
 class ListCard extends React.Component {
   constructor(props){
@@ -14,7 +15,9 @@ class ListCard extends React.Component {
       showActivs: false,
       myActivs: [],
       colors: ['#5fc9f8','#fecb2e','#fd9426','#fc3158','#147efb','#53d769','#fc3d39'],
-      parkPoints: 0
+      parkPoints: 0,
+      showPhotos: false,
+      myPhotoUris: []
     }
   }
 
@@ -34,14 +37,51 @@ class ListCard extends React.Component {
   //     longitudeDelta: 0.0620,
   //   }, 1000)
   // }
+  _takePic = async (parkId, userId) => {
+    let result = await Expo.ImagePicker.launchCameraAsync()
+    if (!result.cancelled) {
+      this.postPhoto(parkId, userId, result.uri)
+      // console.log(result.uri)
+      // this.setState({showImage: true, imageUri: result.uri})
+    }
+  }
+
+
+  getPhotos = (parkId, userId) => {
+    request(`/users/${userId}/favs/${parkId}`)
+    .then(response => {
+      this.setState({myPhotoUris: response.data})
+    })
+    .catch(error => console.log(error))
+  }
+
+  postPhoto = (parkId, userId, uri) => {
+    request(`/users/${userId}/favs/${parkId}`, 'post', {uri})
+    .then(response => {
+      this.getPhotos(parkId, userId)
+    })
+    .catch(error => console.log(error))
+  }
+
 
   getAcsForFav = (userId, parkId) => {
     request(`/users/${userId}/favs/${parkId}/activ`)
     .then( res => {
-      res.data.map(activ => {
-        this.setState({parkPoints: this.state.parkPoints + activ.pts})
-      })
-      this.setState({myActivs: res.data})
+
+      const myActivs = res.data.reduce((acc, ele) =>{
+        const a = acc.find(activity => activity.activId === ele.activId)
+        if(a){
+          a.pts += ele.pts
+        }
+        else {
+          acc.push(ele)
+        }
+        return acc
+      },[])
+
+      const parkPoints = myActivs.reduce((acc, ele) => acc + ele.pts,0)
+
+      this.setState({myActivs, parkPoints})
     })
     .catch(error => console.log(error))
   }
@@ -50,13 +90,26 @@ class ListCard extends React.Component {
     request(`/users/${userId}/favs/${parkId}/activ/${activId}`, 'post')
     .then(res => {
       this.getAcsForFav(userId, parkId)
-      this.setState({showActivs: !this.state.showActivs})
     })
     .catch(error => console.log(error))
   }
 
+  updatePtsForAc = (userId, parkId, activId, pts) => {
+    request(`/users/${userId}/favs/${parkId}/activ/${activId}`, 'put', {pts})
+    .then(res =>{
+      this.getAcsForFav(userId, parkId)
+    })
+    .catch(error => console.log(error))
+  }
+
+  async componentWillMount() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    const { status2 } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+  }
+
   componentDidMount(){
     this.getAcsForFav(this.props.authState, this.props.item.parkId)
+    this.getPhotos(this.props.item.parkId, this.props.authState)
   }
 
   render(){
@@ -75,7 +128,7 @@ class ListCard extends React.Component {
           imageSize={20}
           style={{flex:3, paddingVertical: 10, alignSelf: 'flex-start' }}
         />
-        <Text style={{flex:2, paddingVertical: 10, fontSize: 20, color: '#f1c40f' }}>
+        <Text style={{flex:2, textAlign: 'center', paddingVertical: 10, fontSize: 20, color: '#f1c40f' }}>
           {`${this.props.item.info.rating}/5`}
         </Text>
 
@@ -116,10 +169,15 @@ class ListCard extends React.Component {
         containerStyle={{flex:1}}
         iconStyle={{flex:1, paddingVertical: 10}}
         name='photo-camera'
-        onPress={() => {
-          // toggleList()
-          this.props.showCamera()
-        }}
+        onPress={() => {this._takePic(this.props.item.parkId, this.props.authState)}}
+        />
+
+        <Icon
+        containerStyle={{flex:1}}
+        iconStyle={{flex:1, paddingVertical: 10}}
+        type='ionicon'
+        name='md-photos'
+        onPress={() => {this.setState({showPhotos: !this.state.showPhotos})}}
         />
 
         <Icon
@@ -129,9 +187,8 @@ class ListCard extends React.Component {
         name='map-o'
         onPress={() => {
           this.props.toggleList()
+          this.props.favToMap(this.props.item.info.geometry.location, this.props.item.info.name)
           this.props.toggleMap()
-          // this.animateToPoi(this.props.item.info)
-          // showCamera()
         }}
         />
       </View>
@@ -158,7 +215,7 @@ class ListCard extends React.Component {
                 containerStyle={{flex:1}}
                 raised
                 onPress={() => {
-                  console.log(item.name, item.pts)
+                  this.postAcForFav(this.props.authState, this.props.item.parkId, item.id)
                 }}
               />
               <Text >{item.name}</Text>
@@ -183,7 +240,10 @@ class ListCard extends React.Component {
                 containerStyle={{flex:1}}
                 raised
                 onPress={() => {
-                  this.postAcForFav(this.props.authState, this.props.item.parkId, item.id)
+
+                    this.postAcForFav(this.props.authState, this.props.item.parkId, item.id)
+                    this.setState({showActivs: !this.state.showActivs})
+
                 }}
               />
               <Text >{item.name}</Text>
@@ -192,6 +252,22 @@ class ListCard extends React.Component {
           />
           : null
         }
+        {
+         this.state.showPhotos
+         ? this.state.myPhotoUris.length
+          ? <FlatList
+             horizontal
+             data={this.state.myPhotoUris}
+             keyExtractor={(item, index) => index.toString()}
+             renderItem={({item}) => (
+               <View style={{alignItems: 'center', justifyContent:'center'}}>
+                 <Image source={{uri: item.uri}} style={{height:100, width:100}} />
+               </View>
+             )}
+           />
+         : <Text>No photos for this park yet.</Text>
+        : null
+      }
       </View>
     </Card>
   )
@@ -199,5 +275,5 @@ class ListCard extends React.Component {
 }
 
 const mapStateToProps = ({activs, location, authState }) => ({activs, location, authState })
-const mapDispatchToProps = (dispatch) => bindActionCreators({ toggleMap, toggleList, remove_m_l }, dispatch)
+const mapDispatchToProps = (dispatch) => bindActionCreators({ favToMap, toggleMap, toggleList, remove_m_l }, dispatch)
 export default connect(mapStateToProps, mapDispatchToProps)(ListCard)

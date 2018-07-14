@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux'
-import { SET_LOC, DISALLOW_PERM, GET_PARKS, SET_SELECTED_PARK, ADD_ML, RESET_PARK, GET_ACS, LOGIN, LOGOUT, AUTH_STATE, CLEAR_AUTH, TOG_ML, TOG_SER, TOG_MAP, TOG_MAP_AT, GET_ML, REM_ML} from './actions.js'
+import { SET_LOC, DISALLOW_PERM, GET_PARKS, SET_SELECTED_PARK, ADD_ML, RESET_PARK, GET_ACS, LOGIN, LOGOUT, AUTH_STATE, CLEAR_AUTH, TOG_ML, TOG_SER, TOG_MAP, TOG_MAP_AT, GET_ML, REM_ML, FAV_TO_MAP, MAP_TO_FAV} from './actions.js'
 
 const location = (state = [], action) => {
   switch(action.type){
@@ -93,15 +93,18 @@ const showMap = (state = false, action) => {
     default: return state
   }
 }
-const showSearch = (state = true, action) => {
-  switch(action.type){
-    case TOG_SER: return !state
-    default: return state
-  }
-}
+
 const showMyList = (state = false, action) => {
   switch(action.type){
     case TOG_ML: return !state
+    default: return state
+  }
+}
+
+const favLoc = (state = null, action) => {
+  switch (action.type){
+    case FAV_TO_MAP: return action.payload
+    case MAP_TO_FAV: return null
     default: return state
   }
 }
@@ -116,6 +119,7 @@ export default combineReducers(
     token,
     authState,
     showMap,
-    showSearch,
-    showMyList}
-  )
+    showMyList,
+    favLoc
+  }
+)

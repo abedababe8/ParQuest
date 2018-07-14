@@ -5,7 +5,7 @@ import styles from '../styles.js'
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
-const Screen = ({parkURL, authState, park, my_list, index, add_to_m_l, xOffset}) => {
+const Screen = ({ setError, parkURL, authState, park, my_list, index, add_to_m_l, xOffset}) => {
   const transitionAnimation = index => {
     return {
       transform: [
@@ -47,7 +47,7 @@ const Screen = ({parkURL, authState, park, my_list, index, add_to_m_l, xOffset})
   return (
     <View style={styles.scrollPage}>
       <Animated.View style={[styles.screen, transitionAnimation(index)]}>
-        <View style={{flex: 2, alignSelf: 'stretch', backgroundColor: '#fff', borderTopRightRadius: 25, borderTopLeftRadius: 25, overflow: 'hidden'}}>
+        <View style={{flex: 4, alignSelf: 'stretch', backgroundColor: '#fff', borderTopRightRadius: 25, borderTopLeftRadius: 25, overflow: 'hidden'}}>
           <Image
             style={{flex: 1}}
             source={{uri: `${parkURL}`}}
@@ -55,7 +55,7 @@ const Screen = ({parkURL, authState, park, my_list, index, add_to_m_l, xOffset})
           <Text style={{color: '#33cc33'}}>{`${park.name}`}</Text>
         </View>
         <View style={{flex: 1, alignSelf: 'stretch', flexDirection: 'column'}}>
-          <View style={{flex: 1, justifyContent: 'center', flexDirection: 'row'}}>
+          <View style={{flex: 1, justifyContent: 'space-around', flexDirection: 'row'}}>
             <View style={{flex: 1, justifyContent: 'center'}} >
               <Rating
                 readonly
@@ -66,22 +66,28 @@ const Screen = ({parkURL, authState, park, my_list, index, add_to_m_l, xOffset})
                 style={{flex:1}}
               />
             </View>
-            <View style={{flex: 2, justifyContent: 'flex-start'}} >
+            <View style={{flex: 1, justifyContent: 'flex-start'}} >
               <Text style={{color: '#f1c40f', fontSize: 20}}>{`${park.rating}/5`}</Text>
             </View>
-          </View>
-          <View style={styles.ratingCont}>
             <Icon
+              iconStyle={{flex:1, color: '#5fc9f8'}}
               name='playlist-add'
               onPress={() => {
-                  const finalPark = {
+                const finalPark = {
                   info: park,
                   url: parkURL,
-                  }
-                  add_to_m_l(finalPark, my_list, authState)
                 }
-              }
+                if(!my_list.find(ele => ele.parkId === finalPark.info.place_id)){
+                    add_to_m_l(finalPark, authState)
+                } else {
+                  setError()
+                  setTimeout(() => {
+                    setError()
+                  },1500)
+                }
+              }}
             />
+            <View style={{flex:1}}/>
           </View>
         </View>
       </Animated.View>

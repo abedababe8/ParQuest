@@ -22,6 +22,12 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 const xOffset = new Animated.Value(0);
 
 class Carousel extends Component {
+  constructor(props){
+    super(props)
+    this.state={
+      error: null
+    }
+  }
 
   handleMomentumScrollEnd = (e) => {
     let carouselIndex = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH)
@@ -38,23 +44,34 @@ class Carousel extends Component {
   }
 
   render() {
-    return (
-      <Animated.ScrollView
-        scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: xOffset } } }],
-          { useNativeDriver: true }
-        )}
-        onMomentumScrollEnd = {this.handleMomentumScrollEnd}
-        horizontal
-        pagingEnabled
-        style={styles.scrollView}
-      >
-        <Screen authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.currentPark.info} parkURL={this.props.currentPark.url} index={0} />
-        <Screen authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.nextPark.info} parkURL={this.props.nextPark.url} index={1} />
-        <Screen authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.prevPark.info} parkURL={this.props.prevPark.url} index={2} />
-      </Animated.ScrollView>
-    );
+    if(!this.state.error){
+      return (
+        <Animated.ScrollView
+          scrollEventThrottle={16}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: xOffset } } }],
+            { useNativeDriver: true }
+          )}
+          onMomentumScrollEnd = {this.handleMomentumScrollEnd}
+          horizontal
+          pagingEnabled
+          style={styles.scrollView}
+        >
+
+          <Screen setError={() => this.setState({error: !this.state.error})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.currentPark.info} parkURL={this.props.currentPark.url} index={0} />
+          <Screen setError={() => this.setState({error: !this.state.error})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.nextPark.info} parkURL={this.props.nextPark.url} index={1} />
+          <Screen setError={() => this.setState({error: !this.state.error})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.prevPark.info} parkURL={this.props.prevPark.url} index={2} />
+        </Animated.ScrollView>
+      );
+    } else {
+      return (
+        <View style={styles.scrollView}>
+          <View style={styles.scrollPage}>
+            <Text style={{textAlign: 'center', fontWeight: 'bold', color: 'black', fontSize: 35}}>Already In List</Text>
+          </View>
+        </View>
+      )
+    }
   }
 }
 

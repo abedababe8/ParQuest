@@ -25,9 +25,9 @@ class Main extends React.Component {
     }
   }
 
-  setMapRef = (mapRef) => {
-    this.setState({mapRef})
-  }
+  // setMapRef = (mapRef) => {
+  //   this.setState({mapRef})
+  // }
 
   componentWillMount() {
     if (Platform.OS === 'android' && !Constants.isDevice) {
@@ -54,17 +54,16 @@ class Main extends React.Component {
       return <Signin />
     } else {
       if(this.props.showMap){
-        return <Map setMapRef={this.setMapRef} mapRef={this.state.mapRef}/>
+        return <Map />
       }
       if(this.props.showMyList){
-        return <MyList mapRef={this.state.mapRef}/>
-      }
-      if(this.props.showSearch){
+        return <MyList />
+      } else {
         return <ParkSearch />
       }
     }
   }
 }
-const mapStateToProps = ({ authState, showMap, showMyList, showSearch, token}) => ({ authState, showMap, showMyList, showSearch, token})
+const mapStateToProps = ({ authState, showMap, showMyList, token}) => ({ authState, showMap, showMyList, token})
 const mapDispatchToProps = (dispatch) => bindActionCreators({ getParks, logout, getLocation, getActivs, loginIfTokenPresent, get_m_l }, dispatch)
 export default connect(mapStateToProps, mapDispatchToProps)(Main)

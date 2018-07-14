@@ -13,11 +13,12 @@ export const LOGIN = 'LOGIN'
 export const LOGOUT = 'LOGOUT'
 export const AUTH_STATE = 'AUTH_STATE'
 export const TOG_ML = 'TOG_ML'
-export const TOG_SER = 'TOG_SER'
 export const TOG_MAP = 'TOG_MAP'
 export const TOG_MAP_AT = 'TOG_MAP_AT'
 export const GET_ML = 'GET_ML'
 export const REM_ML = 'REM_ML'
+export const FAV_TO_MAP = 'FAV_TO_MAP'
+export const MAP_TO_FAV = 'MAP_TO_FAV'
 // const getLoc = async () => {
 //   { status } = await Permissions.askAsync(Permissions.LOCATION);
 // }
@@ -125,6 +126,35 @@ export const resetPark = () => {
   }
 }
 
+const checkPrev = (parks, prevPark) => {
+  if(prevPark.photos && prevPark.geometry){
+    console.log('wowowowowow', prevPark)
+    return prevPark
+  } else {
+    let pPI = parks.indexOf(prevPark)
+    if (pPI = 0){
+      return checkPrev(parks, parks[parks.length - 1])
+    } else {
+      return checkPrev(parks, parks[parks.indexOf(prevPark) - 1])
+    }
+  }
+}
+
+const checkNext = (parks, nextPark, prevPark) => {
+  if(nextPark.photos){
+    return nextPark
+  } else {
+    let nPI = parks.indexOf(nextPark)
+    if (nPI === parks.length - 1){
+      return checkNext(parks, parks[parks.indexOf(prevPark) - 1], prevPark)
+    } else {
+      return checkNext(parks, parks[parks.indexOf(nextPark) + 1], prevPark)
+    }
+  }
+}
+
+
+
 export const markerPress = (park, parks) => {
   return async (dispatch) => {
     let nextPark;
@@ -140,22 +170,10 @@ export const markerPress = (park, parks) => {
       prevPark = parks[parks.indexOf(park) - 1]
     }
 
-    if(!nextPark.photos){
-          let nPI = parks.indexOf(nextPark)
-          if (nPI === parks.length - 1){
-            nextPark = parks[parks.indexOf(prevPark) - 1]
-          } else {
-            nextPark = parks[parks.indexOf(nextPark) + 1]
-          }
-        }
-    if(!prevPark.photos){
-          let pPI = parks.indexOf(prevPark)
-          if (nPI = 0){
-            prevPark = parks[parks.length - 1]
-          } else {
-            prevPark = parks[parks.indexOf(prevPark) - 1]
-          }
-        }
+    prevPark = checkPrev(parks, prevPark)
+    nextPark = checkNext(parks, nextPark, prevPark)
+
+    console.log('@@@@@@@@@@@@@@@@@@', prevPark)
 
     park.coords = {
       latitude: Number(park.geometry.location.lat),
@@ -235,24 +253,20 @@ const getOneParkInfo = (park) => {
   })
 }
 
-export const add_to_m_l = (toAdd, my_list, userId) => {
+export const add_to_m_l = (toAdd, userId) => {
   return async (dispatch) => {
-    if(!my_list.find(ele => ele.parkId === toAdd.info.place_id)){
-      request(`/users/${userId}/favs`, 'post', {parkId: toAdd.info.place_id, parkUrl: toAdd.url})
-      .then( response => {
-        dispatch({
-          type: ADD_ML,
-          payload: {
-            info: toAdd.info,
-            url: toAdd.url,
-            parkId: toAdd.info.place_id
-          }
-        })
+    request(`/users/${userId}/favs`, 'post', {parkId: toAdd.info.place_id, parkUrl: toAdd.url})
+    .then( response => {
+      dispatch({
+        type: ADD_ML,
+        payload: {
+          info: toAdd.info,
+          url: toAdd.url,
+          parkId: toAdd.info.place_id
+        }
       })
-      .catch(error => console.log(error))
-    } else {
-      console.log('ALREADY IN ML')
-    }
+    })
+    .catch(error => console.log(error))
   }
 }
 
@@ -337,35 +351,38 @@ export const logout = () => (
   }
 )
 
+
 /////////////  TOGGLE/NAV ACTIONS /////////////
-
-
-export const toggleMap = (park = null) => {
-  return async (dispatch) => {
-    // if(park){
-    //   dispatch({
-    //     type: TOG_MAP_AT,
-    //     payload: {
-    //       latitude: park.geometry.location.lat,
-    //       longitude: park.geometry.location.lng,
-    //       latitudeDelta: 0.0420,
-    //       longitudeDelta: 0.0420
-    //     }
-    //   })
-    // } else {
-      dispatch({
-        type: TOG_MAP
-      })
-    }
-  }
-// }
-export const toggleSearch = () => (
+export const favToMap = (location, name) => (
   dispatch => {
     dispatch({
-      type: TOG_SER
+      type: FAV_TO_MAP,
+      payload: {
+        latitude: location.lat,
+        longitude: location.lng,
+        latitudeDelta: 0.0130,
+        longitudeDelta: 0.0130,
+        name
+      }
     })
   }
 )
+export const mapToFav = () => (
+  dispatch => {
+    dispatch({
+      type: MAP_TO_FAV
+    })
+  }
+)
+
+export const toggleMap = () => (
+  dispatch => {
+    dispatch({
+      type: TOG_MAP
+    })
+  }
+)
+
 export const toggleList = () => (
   dispatch => {
     dispatch({

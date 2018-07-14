@@ -69,7 +69,7 @@ class MyList extends React.Component {
           : this.props.my_list.length
           ? <FlatList
               data={this.props.my_list}
-              renderItem={({item}) => { return <ListCard item={item} showCamera={() => {this.setState({showCamera: !this.state.showCamera})}} getDistance={this.getDistance} mapRef={this.props.mapRef}/>}}
+              renderItem={({item}) => { return <ListCard item={item} showCamera={() => {this.setState({showCamera: !this.state.showCamera})}} getDistance={this.getDistance}/>}}
               keyExtractor={(item, index) => index.toString()}
             />
           : <Text style={{textAlign: 'center', fontWeight: 'bold', color: '#fff', fontSize: 35}}>No parks in your List yet, add them from the Map!</Text>
