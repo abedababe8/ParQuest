@@ -78,11 +78,15 @@ const Screen = ({ setError, parkURL, authState, park, my_list, index, add_to_m_l
                   url: parkURL,
                 }
                 if(!my_list.find(ele => ele.parkId === finalPark.info.place_id)){
+                    setError('added')
                     add_to_m_l(finalPark, authState)
+                    setTimeout(() => {
+                      setError(null)
+                    },1500)
                 } else {
-                  setError()
+                  setError('inList')
                   setTimeout(() => {
-                    setError()
+                    setError(null)
                   },1500)
                 }
               }}

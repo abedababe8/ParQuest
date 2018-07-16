@@ -58,16 +58,24 @@ class Carousel extends Component {
           style={styles.scrollView}
         >
 
-          <Screen setError={() => this.setState({error: !this.state.error})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.currentPark.info} parkURL={this.props.currentPark.url} index={0} />
-          <Screen setError={() => this.setState({error: !this.state.error})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.nextPark.info} parkURL={this.props.nextPark.url} index={1} />
-          <Screen setError={() => this.setState({error: !this.state.error})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.prevPark.info} parkURL={this.props.prevPark.url} index={2} />
+          <Screen setError={(err) => this.setState({error: err})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.currentPark.info} parkURL={this.props.currentPark.url} index={0} />
+          <Screen setError={(err) => this.setState({error: err})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.nextPark.info} parkURL={this.props.nextPark.url} index={1} />
+          <Screen setError={(err) => this.setState({error: err})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.prevPark.info} parkURL={this.props.prevPark.url} index={2} />
         </Animated.ScrollView>
       );
-    } else {
+    } else if(this.state.error === 'inList') {
       return (
         <View style={styles.scrollView}>
           <View style={styles.scrollPage}>
             <Text style={{textAlign: 'center', fontWeight: 'bold', color: 'black', fontSize: 35}}>Already In List</Text>
+          </View>
+        </View>
+      )
+    } else if(this.state.error === 'added') {
+      return (
+        <View style={styles.scrollView}>
+          <View style={styles.scrollPage}>
+            <Text style={{textAlign: 'center', fontWeight: 'bold', color: 'black', fontSize: 35}}>Added to My List!</Text>
           </View>
         </View>
       )

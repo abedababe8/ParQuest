@@ -45,7 +45,7 @@ class MyList extends React.Component {
         flex: 1,
         alignSelf: 'stretch',
       }}
-      source={require('../top-view-forrest.jpg')}
+      source={require('../photos/top-view-forrest.jpg')}
       >
         <View style={{ backgroundColor: '#ff9900', }}>
           <NavigationBar

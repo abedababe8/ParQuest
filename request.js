@@ -9,7 +9,7 @@ async function request(path, method = 'get', body = null) {
     bearerToken = `Bearer ${token}`
   }
 
-  return axios(`http://10.5.2.148:5000${path}`, {
+  return axios(`https://blooming-cliffs-23606.herokuapp.com${path}`, {
     method: method,
     headers: {
       'Content-Type': 'application/json',

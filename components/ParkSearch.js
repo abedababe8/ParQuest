@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { View, Button, Picker, Image, Text, ImageBackground} from 'react-native';
-// import { Button } from 'react-native-elements'
+import { Button as RNButton } from 'react-native-elements'
 import Carousel from 'react-native-carousel'
 // import Carousel from 'react-native-snap-carousel';
 import NavigationBar from 'react-native-navbar';
@@ -41,7 +41,7 @@ class ParkSearch extends Component {
 
   render(){
     return(
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <ImageBackground style={{flex: 1}} source={require('../photos/new_year_background.png')} resizeMode="repeat">
         <View>
           <NavigationBar
             containerStyle={{backgroundColor:'#33cc33'}}
@@ -60,70 +60,51 @@ class ParkSearch extends Component {
           />
         </View>
 
-        <View style={{height:50}} />
-
-          <Carousel
-            indicatorAtBottom={false}
-            indicatorColor="#33cc33"
-            width={375}
-            height={375}
-            delay={8000}
-          >
-            <View style={this.state.carouselItemStyle}>
-              <Image
-                style={{width: 350, height: 350}}
-                source={require('../we-are-parks.jpg')}
-              />
-            </View>
-            <View style={this.state.carouselItemStyle}>
-              <Image
-                style={{width: 350, height: 350}}
-                source={require('../nat-park.jpg')}
-              />
-            </View>
-            <View style={this.state.carouselItemStyle}>
-              <ImageBackground
-                style={{width: 350, height: 350, alignItems: 'center', justifyContent:'center',}}
-                source={require('../state-park.jpg')}
+        <Text style={{marginVertical: 10, textAlign: 'center', fontWeight: 'bold', color: '#33cc33', fontSize: 35}}>PARQUEST</Text>
+        {
+          !this.state.showPicker
+          ? <View style={{height: 380, width:375}}>
+              <Carousel
+                indicatorSize={25}
+                indicatorOffset={-20}
+                indicatorAtBottom={true}
+                indicatorColor="#33cc33"
+                width={375}
+                height={375}
+                delay={8000}
               >
-                <Text style={{textAlign: 'center', fontWeight: 'bold', color: '#fff', fontSize: 35}}>STATE PARKS</Text>
-              </ImageBackground>
+                <View style={this.state.carouselItemStyle}>
+                  <Image
+                    style={{width: 375, height: 375}}
+                    source={require('../photos/we-are-parks.jpg')}
+                  />
+                </View>
+                <View style={this.state.carouselItemStyle}>
+                  <Image
+                    style={{width: 375, height: 375}}
+                    source={require('../photos/nat-park.jpg')}
+                  />
+                </View>
+                <View style={this.state.carouselItemStyle}>
+                  <ImageBackground
+                    style={{width: 375, height: 375, alignItems: 'center', justifyContent:'center',}}
+                    source={require('../photos/state-park.jpg')}
+                  >
+                    <Text style={{textAlign: 'center', fontWeight: 'bold', color: '#fff', fontSize: 35}}>STATE PARKS</Text>
+                  </ImageBackground>
+                </View>
+                <View style={this.state.carouselItemStyle}>
+                  <ImageBackground
+                    style={{width: 375, height: 375, alignItems: 'center', justifyContent:'center',}}
+                    source={require('../photos/city-park.jpg')}
+                  >
+                    <Text style={{textAlign: 'center', fontWeight: 'bold', color: '#fff', fontSize: 35}}>CITY PARKS</Text>
+                  </ImageBackground>
+                </View>
+              </Carousel>
             </View>
-            <View style={this.state.carouselItemStyle}>
-              <ImageBackground
-                style={{width: 350, height: 350, alignItems: 'center', justifyContent:'center',}}
-                source={require('../city-park.jpg')}
-              >
-                <Text style={{textAlign: 'center', fontWeight: 'bold', color: '#fff', fontSize: 35}}>CITY PARKS</Text>
-              </ImageBackground>
-            </View>
-          </Carousel>
-
-
-          <Button
-            style={{flex:1}}
-            onPress={() => {
-              this.props.getParks(this.props.location, this.state.radius)
-              this.props.toggleMap()
-            }}
-            title="Find parks near Me"
-            color="#33cc33"
-            accessibilityLabel="Button that takes you to Where you are on Map"
-          />
-
-          <Button
-            style={{flex:1}}
-            onPress={this.showPicker}
-            title="Change Radius of Search"
-            color="#33cc33"
-            accessibilityLabel="Button that displays picker"
-          />
-
-            {
-              !this.state.showPicker
-              ? <View style={{flex:1}} />
-              :  <Picker
-              style={{flex:1}}
+          : <Picker
+              style={{height: 380, width:375}}
               selectedValue={this.state.radius}
               onValueChange={this.radiusChange}>
                 <Picker.Item label= "500 m" value= "500" />
@@ -137,9 +118,34 @@ class ParkSearch extends Component {
                 <Picker.Item label="4500 m" value="4500" />
                 <Picker.Item label="5000 m" value="5000" />
               </Picker>
-            }
+        }
 
-      </View>
+
+        <RNButton
+          buttonStyle={{marginTop: 20}}
+          onPress={() => {
+            this.props.getParks(this.props.location, this.state.radius)
+            this.props.toggleMap()
+          }}
+          title="Find parks near Me"
+          backgroundColor="#33cc33"
+          rounded
+          raised
+        />
+
+        <RNButton
+          // style={{flex:1}}
+          buttonStyle={{marginTop: 20, width: 250, alignSelf: 'center'}}
+
+          onPress={this.showPicker}
+          title="Change Radius of Search"
+          backgroundColor="#33cc33"
+          rounded
+          raised
+          // accessibilityLabel="Button that displays picker"
+        />
+
+      </ImageBackground>
     )
   }
 }
