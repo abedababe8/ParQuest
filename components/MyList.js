@@ -1,5 +1,4 @@
 import React from 'react'
-import ExampleCamera from './CameraExample'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -13,9 +12,6 @@ import styles from '../styles.js'
 class MyList extends React.Component {
   constructor(props){
     super(props)
-    this.state = {
-      showCamera: false
-    }
   }
 
   getDistance(a,b){
@@ -63,19 +59,15 @@ class MyList extends React.Component {
                             this.props.toggleList()
                           }  }} />
         </View>
-        {
-          this.state.showCamera
-          ? < ExampleCamera showCamera={() => {this.setState({showCamera: !this.state.showCamera})}}/>
-          : this.props.my_list.length
+        { this.props.my_list.length
           ? <FlatList
               data={this.props.my_list}
-              renderItem={({item}) => { return <ListCard item={item} showCamera={() => {this.setState({showCamera: !this.state.showCamera})}} getDistance={this.getDistance}/>}}
+              renderItem={({item}) => { return <ListCard item={item} getDistance={this.getDistance}/>}}
               keyExtractor={(item, index) => index.toString()}
             />
           : <Text style={{textAlign: 'center', fontWeight: 'bold', color: '#fff', fontSize: 35}}>No parks in your List yet, add them from the Map!</Text>
         }
         </ImageBackground>
-
       </View>
     )
   }

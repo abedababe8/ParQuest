@@ -84,21 +84,9 @@ class Signin extends Component {
             this.props.newUser(this.state.new_username, this.state.new_password)
           }}/>
     </KeyboardAvoidingView>
-      // <View style={styles.container}>
-      //   <Input
-      //     placeholder='INPUT WITH SHAKING EFFECT'
-      //     shake={true}
-      //   />
-      //   <Input
-      //     placeholder='INPUT WITH ERROR MESSAGE'
-      //     errorStyle={{ color: 'red' }}
-      //     errorMessage='ENTER A VALID ERROR HERE'
-      //   />
-      // </View>
     )
   }
 }
 
-// const mapStateToProps = ({ }) => ({ })
 const mapDispatchToProps = (dispatch) => bindActionCreators({ login, newUser }, dispatch)
 export default connect(null, mapDispatchToProps)(Signin)

@@ -1,5 +1,23 @@
 import { combineReducers } from 'redux'
-import { SET_LOC, DISALLOW_PERM, GET_PARKS, SET_SELECTED_PARK, ADD_ML, RESET_PARK, GET_ACS, LOGIN, LOGOUT, AUTH_STATE, CLEAR_AUTH, TOG_ML, TOG_SER, TOG_MAP, TOG_MAP_AT, GET_ML, REM_ML, FAV_TO_MAP, MAP_TO_FAV} from './actions.js'
+import {SET_LOC,
+        DISALLOW_PERM,
+        GET_PARKS,
+        SET_SELECTED_PARK,
+        ADD_ML,
+        RESET_PARK,
+        GET_ACS,
+        LOGIN,
+        LOGOUT,
+        AUTH_STATE,
+        CLEAR_AUTH,
+        TOG_ML,
+        TOG_SER,
+        TOG_MAP,
+        TOG_MAP_AT,
+        GET_ML,
+        REM_ML,
+        FAV_TO_MAP, 
+        MAP_TO_FAV} from './actions.js'
 
 const location = (state = [], action) => {
   switch(action.type){

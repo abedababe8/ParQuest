@@ -1,17 +1,14 @@
 import React from 'react';
-// import { RNCamera } from 'react-native-camera';
-
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Platform } from 'react-native';
-import { Constants } from 'expo';
+import { Constants, Location, Permissions } from 'expo';
 import { AsyncStorage } from "react-native"
 
 import Map from './Map'
 import MyList from './MyList'
 import ParkSearch from './ParkSearch'
 import Signin from './Signin'
-import ExampleCamera from './CameraExample'
 
 import {getParks, getLocation, getActivs, loginIfTokenPresent, logout, get_m_l} from '../redux/actions.js'
 
@@ -25,10 +22,6 @@ class Main extends React.Component {
     }
   }
 
-  // setMapRef = (mapRef) => {
-  //   this.setState({mapRef})
-  // }
-
   componentWillMount() {
     if (Platform.OS === 'android' && !Constants.isDevice) {
       this.setState({
@@ -39,9 +32,16 @@ class Main extends React.Component {
     }
   }
 
-  componentDidMount(){
-                      //this.props.authState
-    this.props.getLocation()
+  async componentDidMount(){
+    const { status }  =  await Permissions.askAsync(Permissions.LOCATION);
+    if(status !== 'granted'){
+      console.log('not permissed')
+    }
+    else {
+    setInterval(()=> {
+      this.props.getLocation()
+    }, 1000)
+    }
   }
   componentDidUpdate(prevProps){
     if(this.props.authState !== prevProps.authState && this.props.authState){

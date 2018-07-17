@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux'
 import { View, Button, Picker, Image, Text, ImageBackground} from 'react-native';
 import { Button as RNButton } from 'react-native-elements'
 import Carousel from 'react-native-carousel'
-// import Carousel from 'react-native-snap-carousel';
 import NavigationBar from 'react-native-navbar';
 
 import styles from '../styles.js'
@@ -134,15 +133,12 @@ class ParkSearch extends Component {
         />
 
         <RNButton
-          // style={{flex:1}}
           buttonStyle={{marginTop: 20, width: 250, alignSelf: 'center'}}
-
           onPress={this.showPicker}
           title="Change Radius of Search"
           backgroundColor="#33cc33"
           rounded
           raised
-          // accessibilityLabel="Button that displays picker"
         />
 
       </ImageBackground>

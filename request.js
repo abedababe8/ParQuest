@@ -19,7 +19,6 @@ async function request(path, method = 'get', body = null) {
     data: body
   })
   .catch(function(error){
-    // console.log(error)
     return Promise.reject(error)
   })
 }

@@ -19,9 +19,6 @@ export const GET_ML = 'GET_ML'
 export const REM_ML = 'REM_ML'
 export const FAV_TO_MAP = 'FAV_TO_MAP'
 export const MAP_TO_FAV = 'MAP_TO_FAV'
-// const getLoc = async () => {
-//   { status } = await Permissions.askAsync(Permissions.LOCATION);
-// }
 
 export const newUser = (new_username, new_password) => {
   return async (dispatch) => {
@@ -35,14 +32,6 @@ export const newUser = (new_username, new_password) => {
 
 export const getLocation = () => {
   return async (dispatch) => {
-    const { status }  =  await Permissions.askAsync(Permissions.LOCATION);
-    if(status !== 'granted'){
-      dispatch({
-        type: DISALLOW_PERM,
-        payload: 'Permission to access location was denied'
-      })
-    }
-    else {
       let location = await Location.getCurrentPositionAsync({});
       dispatch({
         type: SET_LOC,
@@ -50,7 +39,7 @@ export const getLocation = () => {
       })
     }
   }
-}
+
 /////////////  PARK ACTIONS /////////////
 
 export const getParks = (location, radius) => {
@@ -60,7 +49,10 @@ export const getParks = (location, radius) => {
       return res.json()
     })
     .then(res => {
-      const parks = res.results.map(park => {
+      const filteredParks = res.results.filter(park => {
+        return park.photos !== undefined && park.rating !== undefined
+      })
+      const parks = filteredParks.map(park => {
         park.coords = {
           latitude: Number(park.geometry.location.lat),
           longitude: Number(park.geometry.location.lng)
@@ -68,14 +60,12 @@ export const getParks = (location, radius) => {
         return park
       })
       if(res.next_page_token){
-        // console.log(parks)
         dispatch({
           type: GET_PARKS,
           payload: parks,
           next: res.next_page_token
         })
       } else {
-        // console.log(parks)
         dispatch({
           type: GET_PARKS,
           payload: parks,
@@ -128,7 +118,6 @@ export const resetPark = () => {
 
 const checkPrev = (parks, prevPark) => {
   if(prevPark.photos && prevPark.geometry){
-    console.log('wowowowowow', prevPark)
     return prevPark
   } else {
     let pPI = parks.indexOf(prevPark)
@@ -172,8 +161,6 @@ export const markerPress = (park, parks) => {
 
     prevPark = checkPrev(parks, prevPark)
     nextPark = checkNext(parks, nextPark, prevPark)
-
-    console.log('@@@@@@@@@@@@@@@@@@', prevPark)
 
     park.coords = {
       latitude: Number(park.geometry.location.lat),
@@ -289,10 +276,6 @@ export const remove_m_l = (parkId, userId) => {
 export const getActivs = (id) => {
   return async (dispatch) => {
     request(`/users/${id}/activ`)
-    // .then(response => {
-    //   console.log(response)
-    //   return response.json()
-    // })
     .then(res => {
       dispatch({
         type: GET_ACS,

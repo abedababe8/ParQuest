@@ -5,7 +5,6 @@ import { Text, View, Button, Image, Platform, Dimensions } from 'react-native';
 import { MapView, Permissions, Location } from 'expo';
 import dayMap from '../dayMap.json'
 import SweetCarousel from './Carousel'
-import PoiPress from './PoiPress'
 import NavigationBar from 'react-native-navbar';
 
 import { getMoreParks, getLocation, markerPress, resetPark, toggleMap, toggleList, mapToFav} from '../redux/actions.js'
@@ -21,8 +20,6 @@ class Map extends React.Component {
       errorMessage: null,
     }
   }
-
-  // park is of this.state.parks
   animateToPoi = (park) => {
     setTimeout(() => {
       this.mapView.animateToRegion({
@@ -55,24 +52,6 @@ class Map extends React.Component {
     var d = R * c;
     return d
   }
-  // manageMapRef = (node) => {
-  //   this.mapView = node
-  //   this.props.setMapRef(node)
-  // }
-
-  // initialRegionFinder(){
-  //   console.log(this.props.initialRegion)
-  //   if(this.props.initialRegion){
-  //     return this.props.initialRegion
-  //   } else {
-  //     return {
-  //       latitude: this.props.location.coords.latitude,
-  //       longitude: this.props.location.coords.longitude,
-  //       latitudeDelta: 0.0420,
-  //       longitudeDelta: 0.0420,
-  //     }
-  //   }
-  // }
 
   render(){
     if(this.props.favLoc){
@@ -91,6 +70,7 @@ class Map extends React.Component {
                             tintColor: '#33cc33',
                             handler: () => {
                               this.props.toggleMap()
+                              this.props.mapToFav()
                               this.props.resetPark()
                             } }}
               rightButton={{ title: 'More Parks',
@@ -104,6 +84,7 @@ class Map extends React.Component {
                             tintColor: '#33cc33',
                             handler: () => {
                               this.props.toggleMap()
+                              this.props.mapToFav()
                               this.props.resetPark()
                             } }}
               rightButton={{title: 'My List',
@@ -145,21 +126,44 @@ class Map extends React.Component {
             }
             {
               this.props.parks
-              ? this.props.parks.map((park, index, parks) => (
-                  <MapView.Marker
-                    key={index}
-                    coordinate={park.coords}
-                    pinColor={'green'}
-                    title={park.name}
-                    description={`${Math.round(this.getDistance(this.props.location.coords, park.coords)).toFixed(0)} meters away`}
-                    onPress={() => {
-                      this.props.getLocation()
-                      this.props.resetPark()
-                      this.props.markerPress(park, parks)
-                      this.animateToPoi(park)
-                    }}
-                  />
-               ))
+              ? this.props.parks.map((park, index, parks) => {
+                let found = this.props.my_list.find(myPark => {
+                  return myPark.parkId === park.place_id
+                })
+                if(found){
+                  return (
+                    <MapView.Marker
+                      key={index}
+                      coordinate={park.coords}
+                      pinColor={'blue'}
+                      title={park.name}
+                      description={`${Math.round(this.getDistance(this.props.location.coords, park.coords)).toFixed(0)} meters away`}
+                      onPress={() => {
+                        this.props.getLocation()
+                        this.props.resetPark()
+                        this.props.markerPress(park, parks)
+                        this.animateToPoi(park)
+                      }}
+                    />
+                  )
+                } else {
+                  return (
+                    <MapView.Marker
+                      key={index}
+                      coordinate={park.coords}
+                      pinColor={'green'}
+                      title={park.name}
+                      description={`${Math.round(this.getDistance(this.props.location.coords, park.coords)).toFixed(0)} meters away`}
+                      onPress={() => {
+                        this.props.getLocation()
+                        this.props.resetPark()
+                        this.props.markerPress(park, parks)
+                        this.animateToPoi(park)
+                      }}
+                    />
+                  )
+                }
+               })
               : null
             }
           </MapView>
@@ -179,6 +183,6 @@ class Map extends React.Component {
     )
   }
 }
-const mapStateToProps = ({parks, location, nextPageToken, selectedPark, favLoc}) => ({parks, location, nextPageToken, selectedPark, favLoc})
+const mapStateToProps = ({parks, location, nextPageToken, selectedPark, favLoc, my_list}) => ({parks, location, nextPageToken, selectedPark, favLoc, my_list})
 const mapDispatchToProps = (dispatch) => bindActionCreators({ getMoreParks, getLocation, markerPress, resetPark, toggleMap, mapToFav, toggleList}, dispatch)
 export default connect(mapStateToProps, mapDispatchToProps)(Map)

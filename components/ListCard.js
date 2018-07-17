@@ -2,7 +2,7 @@ import React from 'react'
 import request from '../request.js'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { View, Text, Button, FlatList, AlertIOS, CameraRoll, Image } from 'react-native'
+import { View, Text, Button, FlatList, AlertIOS, Image, TouchableOpacity, CameraRoll } from 'react-native'
 import {Card, Icon, Rating, Divider} from 'react-native-elements'
 import Expo, {Permissions} from 'expo'
 
@@ -21,28 +21,10 @@ class ListCard extends React.Component {
     }
   }
 
-  // animateToPoi = (park) => {
-  //   setTimeout(() => {
-  //     this.props.mapRef.animateToRegion({
-  //       latitude: park.geometry.location.lat,
-  //       longitude: park.geometry.location.lng,
-  //       latitudeDelta: Math.abs(park.geometry.viewport.northeast.lat - park.geometry.viewport.southwest.lat + .013),
-  //       longitudeDelta: Math.abs(park.geometry.viewport.northeast.lng - park.geometry.viewport.southwest.lng)
-  //     }, 700 )
-  //   }, 700)
-  //   this.props.mapRef.animateToRegion({
-  //     latitude: this.props.location.coords.latitude,
-  //     longitude: this.props.location.coords.longitude,
-  //     latitudeDelta: 0.0620,
-  //     longitudeDelta: 0.0620,
-  //   }, 1000)
-  // }
   _takePic = async (parkId, userId) => {
     let result = await Expo.ImagePicker.launchCameraAsync()
     if (!result.cancelled) {
       this.postPhoto(parkId, userId, result.uri)
-      // console.log(result.uri)
-      // this.setState({showImage: true, imageUri: result.uri})
     }
   }
 
@@ -158,19 +140,29 @@ class ListCard extends React.Component {
               },
               {
                 text: 'DELETE',
-                onPress: () => this.props.remove_m_l(this.props.item.parkId, this.props.authState),
+                onPress: () => {
+                  this.state.myPhotoUris.map(uri => {
+                    Expo.FileSystem.deleteAsync(uri.uri)
+                  })
+                  this.props.remove_m_l(this.props.item.parkId, this.props.authState)
+
+                },
               },
             ]
           );
         }}
         />
 
-        <Icon
-        containerStyle={{flex:1}}
-        iconStyle={{flex:1, paddingVertical: 10}}
-        name='photo-camera'
-        onPress={() => {this._takePic(this.props.item.parkId, this.props.authState)}}
-        />
+        {
+          Math.round(this.props.getDistance(this.props.location.coords, this.props.item.info.geometry.location)).toFixed(0) < 200
+        ? <Icon
+            containerStyle={{flex:1}}
+            iconStyle={{flex:1, paddingVertical: 10}}
+            name='photo-camera'
+            onPress={() => {this._takePic(this.props.item.parkId, this.props.authState)}}
+          />
+        : null
+        }
 
         <Icon
         containerStyle={{flex:1}}
@@ -192,9 +184,15 @@ class ListCard extends React.Component {
         }}
         />
       </View>
-      <View style={{flex: 1, flexDirection: 'row', marginBottom: 10}}>
-        <Text>
+      <View style={{flex: 0.5, flexDirection: 'row'}}>
+        <Text >
           {this.props.item.info.formatted_address}
+        </Text>
+      </View>
+
+      <View style={{flex: 0.5, flexDirection: 'row'}}>
+        <Text >
+          {`${Math.round(this.props.getDistance(this.props.location.coords, this.props.item.info.geometry.location)).toFixed(0)}m away`}
         </Text>
       </View>
 
@@ -261,7 +259,26 @@ class ListCard extends React.Component {
              keyExtractor={(item, index) => index.toString()}
              renderItem={({item}) => (
                <View style={{alignItems: 'center', justifyContent:'center'}}>
-                 <Image source={{uri: item.uri}} style={{height:100, width:100}} />
+               <TouchableOpacity
+                 style={{height:100, width:100}}
+                 onPress={() => {
+                   AlertIOS.alert(
+                     'Save?',
+                     'Do you want to Save this photo to your Camera Roll?',
+                     [
+                       {
+                         text: 'Cancel',
+                         onPress: () => console.log('Cancel Pressed'),
+                       },
+                       {
+                         text: 'ADD',
+                         onPress: () => CameraRoll.saveToCameraRoll(item.uri),
+                       },
+                     ]
+                   );
+                 }}>
+                  <Image source={{uri: item.uri}} style={{height:100, width:100}} />
+                </TouchableOpacity>
                </View>
              )}
            />
