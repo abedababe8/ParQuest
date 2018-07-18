@@ -1,8 +1,7 @@
 import React from "react";
 import {Animated, Dimensions, Text, View, Image, Button} from "react-native";
-import {Rating, Icon} from 'react-native-elements'
+import {Rating, Icon, Button as RNButton} from 'react-native-elements'
 import styles from '../styles.js'
-import { Button as RNButton } from 'react-native-elements'
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
