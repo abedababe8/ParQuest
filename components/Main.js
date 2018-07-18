@@ -9,7 +9,6 @@ import Map from './Map'
 import MyList from './MyList'
 import ParkSearch from './ParkSearch'
 import Signin from './Signin'
-
 import {getParks, getLocation, getActivs, loginIfTokenPresent, logout, get_m_l} from '../redux/actions.js'
 
 import styles from '../styles.js'

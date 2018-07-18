@@ -1,7 +1,7 @@
 import { Location, Permissions } from 'expo';
 import request from '../request.js'
 import { AsyncStorage } from "react-native"
-
+import {API_KEY} from '../env.json'
 export const SET_LOC = 'SET_LOC'
 export const DISALLOW_PERM = 'DISALLOW_PERM'
 export const GET_PARKS = 'GET_PARKS'
@@ -44,7 +44,7 @@ export const getLocation = () => {
 
 export const getParks = (location, radius) => {
   return async (dispatch) => {
-    fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.coords.latitude},${location.coords.longitude}&radius=${radius}&type=park&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
+    fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.coords.latitude},${location.coords.longitude}&radius=${radius}&type=park&key=${API_KEY}`)
     .then(res => {
       return res.json()
     })
@@ -78,7 +78,7 @@ export const getParks = (location, radius) => {
 
 export const getMoreParks = (parks, nextPageToken) => {
   return async (dispatch) => {
-    fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?pagetoken=${nextPageToken}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
+    fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?pagetoken=${nextPageToken}&key=${API_KEY}`)
     .then(res => {
       return res.json()
     })
@@ -177,18 +177,18 @@ export const markerPress = (park, parks) => {
 
 
     const getParkInfo = Promise.all([
-      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.place_id}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`),
-      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${nextPark.place_id}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`),
-      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${prevPark.place_id}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
+      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.place_id}&key=${API_KEY}`),
+      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${nextPark.place_id}&key=${API_KEY}`),
+      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${prevPark.place_id}&key=${API_KEY}`)
     ])
     .then(response => {
       return Promise.all(response.map(res =>res.json()))
     })
 
     const getParkUrl = Promise.all([
-      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${park.photos[0].photo_reference}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`),
-      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${nextPark.photos[0].photo_reference}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`),
-      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${prevPark.photos[0].photo_reference}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
+      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${park.photos[0].photo_reference}&key=${API_KEY}`),
+      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${nextPark.photos[0].photo_reference}&key=${API_KEY}`),
+      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${prevPark.photos[0].photo_reference}&key=${API_KEY}`)
     ])
 
     Promise.all([getParkInfo, getParkUrl])
@@ -226,7 +226,7 @@ export const get_m_l = (userId) => {
 }
 
 const getOneParkInfo = (park) => {
-  return fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.parkId}&key=AIzaSyAoHltFHmXWVi5rX_vKqE7nxqDNFzvjNCs`)
+  return fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.parkId}&key=${API_KEY}`)
   .then(response => {
     return response.json()
   })
