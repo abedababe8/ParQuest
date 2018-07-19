@@ -67,28 +67,28 @@ class Map extends React.Component {
             ? <NavigationBar
               title={{ title: 'Map', }}
               leftButton={{ title: 'Search',
-                            tintColor: '#33cc33',
+                            tintColor: '#4DA752',
                             handler: () => {
                               this.props.toggleMap()
                               this.props.mapToFav()
                               this.props.resetPark()
                             } }}
               rightButton={{ title: 'More Parks',
-                             tintColor: '#33cc33',
+                             tintColor: '#4DA752',
                              handler: () => {
                               this.props.getMoreParks(this.props.parks, this.props.nextPageToken)
                             }}} />
             : <NavigationBar
               title={{ title: 'Map', }}
               leftButton={{ title: 'Search',
-                            tintColor: '#33cc33',
+                            tintColor: '#4DA752',
                             handler: () => {
                               this.props.toggleMap()
                               this.props.mapToFav()
                               this.props.resetPark()
                             } }}
               rightButton={{title: 'My List',
-                            tintColor: '#33cc33',
+                            tintColor: '#4DA752',
                             handler: () => {
                               this.props.toggleMap()
                               this.props.mapToFav()

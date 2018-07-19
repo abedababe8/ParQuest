@@ -24,7 +24,7 @@ class Signin extends Component {
       <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
         <FormLabel >Username</FormLabel>
           <View style={{flex: 1, flexDirection: 'row'}}>
-            <Icon name='leaf' color='#33cc33' type='font-awesome'/>
+            <Icon name='leaf' color='#4DA752' type='font-awesome'/>
             <FormInput
               ref= {(el) => { this.username = el; }}
               onChangeText={(username) => this.setState({username})}
@@ -43,7 +43,7 @@ class Signin extends Component {
         </View>
         <Button
           containerViewStyle={{margin: 20}}
-          backgroundColor={'#33cc33'}
+          backgroundColor={'#4DA752'}
           rightIcon={{name: 'code'}}
           title='Signin'
           onPress={()=>{
@@ -77,7 +77,7 @@ class Signin extends Component {
 
         <Button
           containerViewStyle={{margin: 20}}
-          backgroundColor={'#33cc33'}
+          backgroundColor={'#4DA752'}
           rightIcon={{name: 'code'}}
           title='Signup'
           onPress={()=>{

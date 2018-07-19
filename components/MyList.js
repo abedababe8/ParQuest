@@ -45,7 +45,7 @@ class MyList extends React.Component {
       >
         <View style={{ backgroundColor: '#ff9900', }}>
           <NavigationBar
-            containerStyle={{backgroundColor:'#33cc33'}}
+            containerStyle={{backgroundColor:'#4DA752'}}
             title={{ title: 'My List', }}
             leftButton={{ title: 'Search',
                           tintColor: '#fff',

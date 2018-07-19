@@ -146,64 +146,131 @@ const checkNext = (parks, nextPark, prevPark) => {
 
 export const markerPress = (park, parks) => {
   return async (dispatch) => {
-    let nextPark;
-    let prevPark;
-    if(parks.indexOf(park) === parks.length - 1){
-      nextPark = parks[0]
-      prevPark = parks[parks.indexOf(park) - 1]
-    } else if (parks.indexOf(park) === 0){
-      nextPark = parks[parks.indexOf(park) + 1]
-      prevPark = parks[parks.length - 1]
+    if(parks.length === 1){
+      park.coords = {
+        latitude: Number(park.geometry.location.lat),
+        longitude: Number(park.geometry.location.lng)
+      }
+      const getParkInfo = Promise.all([
+        fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.place_id}&key=${API_KEY}`)
+      ])
+      .then(response => {
+        return Promise.all(response.map(res =>res.json()))
+      })
+
+      const getParkUrl = Promise.all([
+        fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${park.photos[0].photo_reference}&key=${API_KEY}`)
+      ])
+
+      Promise.all([getParkInfo, getParkUrl])
+      .then(([parkInfo, parkUrl]) => {
+        const parks = {
+          currentPark: {info: parkInfo[0].result, url: parkUrl[0].url, og: park}
+        }
+        dispatch({
+          type: 'SET_SELECTED_PARK',
+          payload: parks
+        })
+      })
+    } else if(parks.length === 2){
+      let nextPark;
+      if(parks.indexOf(park) === 0){
+        nextPark = parks[1]
+      } else {
+        nextPark = parks[0]
+      }
+      park.coords = {
+        latitude: Number(park.geometry.location.lat),
+        longitude: Number(park.geometry.location.lng)
+      }
+      nextPark.coords = {
+        latitude: Number(nextPark.geometry.location.lat),
+        longitude: Number(nextPark.geometry.location.lng)
+      }
+      const getParkInfo = Promise.all([
+        fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.place_id}&key=${API_KEY}`),
+        fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${nextPark.place_id}&key=${API_KEY}`)
+      ])
+      .then(response => {
+        return Promise.all(response.map(res =>res.json()))
+      })
+
+      const getParkUrl = Promise.all([
+        fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${park.photos[0].photo_reference}&key=${API_KEY}`),
+        fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${nextPark.photos[0].photo_reference}&key=${API_KEY}`)
+      ])
+
+      Promise.all([getParkInfo, getParkUrl])
+      .then(([parkInfo, parkUrl]) => {
+        const parks = {
+          currentPark: {info: parkInfo[0].result, url: parkUrl[0].url, og: park},
+          nextPark: {info: parkInfo[1].result, url: parkUrl[1].url, og: nextPark}
+        }
+        dispatch({
+          type: 'SET_SELECTED_PARK',
+          payload: parks
+        })
+      })
     } else {
-      nextPark = parks[parks.indexOf(park) + 1]
-      prevPark = parks[parks.indexOf(park) - 1]
-    }
-
-    prevPark = checkPrev(parks, prevPark)
-    nextPark = checkNext(parks, nextPark, prevPark)
-
-    park.coords = {
-      latitude: Number(park.geometry.location.lat),
-      longitude: Number(park.geometry.location.lng)
-    }
-    nextPark.coords = {
-      latitude: Number(nextPark.geometry.location.lat),
-      longitude: Number(nextPark.geometry.location.lng)
-    }
-    prevPark.coords = {
-      latitude: Number(prevPark.geometry.location.lat),
-      longitude: Number(prevPark.geometry.location.lng)
-    }
-
-
-    const getParkInfo = Promise.all([
-      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.place_id}&key=${API_KEY}`),
-      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${nextPark.place_id}&key=${API_KEY}`),
-      fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${prevPark.place_id}&key=${API_KEY}`)
-    ])
-    .then(response => {
-      return Promise.all(response.map(res =>res.json()))
-    })
-
-    const getParkUrl = Promise.all([
-      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${park.photos[0].photo_reference}&key=${API_KEY}`),
-      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${nextPark.photos[0].photo_reference}&key=${API_KEY}`),
-      fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${prevPark.photos[0].photo_reference}&key=${API_KEY}`)
-    ])
-
-    Promise.all([getParkInfo, getParkUrl])
-    .then(([parkInfo, parkUrl]) => {
-      const parks = {
-        currentPark: {info: parkInfo[0].result, url: parkUrl[0].url, og: park},
-        nextPark: {info: parkInfo[1].result, url: parkUrl[1].url, og: nextPark},
-        prevPark: {info: parkInfo[2].result, url: parkUrl[2].url, og: prevPark},
+      let nextPark;
+      let prevPark;
+      if(parks.indexOf(park) === parks.length - 1){
+        nextPark = parks[0]
+        prevPark = parks[parks.indexOf(park) - 1]
+      } else if (parks.indexOf(park) === 0){
+        nextPark = parks[parks.indexOf(park) + 1]
+        prevPark = parks[parks.length - 1]
+      } else {
+        nextPark = parks[parks.indexOf(park) + 1]
+        prevPark = parks[parks.indexOf(park) - 1]
       }
 
-      dispatch({
-        type: 'SET_SELECTED_PARK',
-        payload: parks
+      prevPark = checkPrev(parks, prevPark)
+      nextPark = checkNext(parks, nextPark, prevPark)
+
+      park.coords = {
+        latitude: Number(park.geometry.location.lat),
+        longitude: Number(park.geometry.location.lng)
+      }
+      nextPark.coords = {
+        latitude: Number(nextPark.geometry.location.lat),
+        longitude: Number(nextPark.geometry.location.lng)
+      }
+      prevPark.coords = {
+        latitude: Number(prevPark.geometry.location.lat),
+        longitude: Number(prevPark.geometry.location.lng)
+      }
+
+
+      const getParkInfo = Promise.all([
+        fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${park.place_id}&key=${API_KEY}`),
+        fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${nextPark.place_id}&key=${API_KEY}`),
+        fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${prevPark.place_id}&key=${API_KEY}`)
+      ])
+      .then(response => {
+        return Promise.all(response.map(res =>res.json()))
       })
-    })
+
+      const getParkUrl = Promise.all([
+        fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${park.photos[0].photo_reference}&key=${API_KEY}`),
+        fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${nextPark.photos[0].photo_reference}&key=${API_KEY}`),
+        fetch(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${prevPark.photos[0].photo_reference}&key=${API_KEY}`)
+      ])
+
+      Promise.all([getParkInfo, getParkUrl])
+      .then(([parkInfo, parkUrl]) => {
+        const parks = {
+          currentPark: {info: parkInfo[0].result, url: parkUrl[0].url, og: park},
+          nextPark: {info: parkInfo[1].result, url: parkUrl[1].url, og: nextPark},
+          prevPark: {info: parkInfo[2].result, url: parkUrl[2].url, og: prevPark},
+        }
+
+        dispatch({
+          type: 'SET_SELECTED_PARK',
+          payload: parks
+        })
+      })
+    }
   }
 }
 

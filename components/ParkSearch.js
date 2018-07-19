@@ -43,7 +43,7 @@ class ParkSearch extends Component {
       <ImageBackground style={{flex: 1}} source={require('../photos/new_year_background.png')} resizeMode="repeat">
         <View>
           <NavigationBar
-            containerStyle={{backgroundColor:'#33cc33'}}
+            containerStyle={{backgroundColor:'#4DA752'}}
             title={{ title: 'Search', }}
             leftButton={{ title: 'My List',
                           tintColor: '#fff',
@@ -59,7 +59,7 @@ class ParkSearch extends Component {
           />
         </View>
 
-        <Text style={{marginVertical: 10, textAlign: 'center', fontWeight: 'bold', color: '#33cc33', fontSize: 35}}>PARQUEST</Text>
+        <Text style={{marginVertical: 10, textAlign: 'center', fontWeight: 'bold', color: '#4DA752', fontSize: 35}}>PARQUEST</Text>
         {
           !this.state.showPicker
           ? <View style={{height: 380, width:375}}>
@@ -67,7 +67,7 @@ class ParkSearch extends Component {
                 indicatorSize={25}
                 indicatorOffset={-20}
                 indicatorAtBottom={true}
-                indicatorColor="#33cc33"
+                indicatorColor="#4DA752"
                 width={375}
                 height={375}
                 delay={8000}
@@ -127,7 +127,7 @@ class ParkSearch extends Component {
             this.props.toggleMap()
           }}
           title="Find parks near Me"
-          backgroundColor="#33cc33"
+          backgroundColor="#4DA752"
           rounded
           raised
         />
@@ -136,7 +136,7 @@ class ParkSearch extends Component {
           buttonStyle={{marginTop: 20, width: 250, alignSelf: 'center'}}
           onPress={this.showPicker}
           title="Change Radius of Search"
-          backgroundColor="#33cc33"
+          backgroundColor="#4DA752"
           rounded
           raised
         />

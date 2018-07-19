@@ -52,7 +52,7 @@ const Screen = ({ setError, parkURL, authState, park, my_list, index, add_to_m_l
             style={{flex: 1}}
             source={{uri: `${parkURL}`}}
           />
-          <Text style={{color: '#33cc33'}}>{`${park.name}`}</Text>
+          <Text style={{color: '#4DA752'}}>{`${park.name}`}</Text>
         </View>
         <View style={{flex: 1, alignSelf: 'stretch', flexDirection: 'column', justifyContent: 'center'}}>
           <View style={{flex: 1, justifyContent: 'space-around', flexDirection: 'row'}}>

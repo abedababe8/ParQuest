@@ -7,7 +7,6 @@ import {Card, Icon, Rating, Divider} from 'react-native-elements'
 import Expo, {Permissions} from 'expo'
 
 import { favToMap, toggleMap, toggleList, remove_m_l } from '../redux/actions.js'
-
 class ListCard extends React.Component {
   constructor(props){
     super(props)
@@ -17,7 +16,8 @@ class ListCard extends React.Component {
       colors: ['#5fc9f8','#fecb2e','#fd9426','#fc3158','#147efb','#53d769','#fc3d39'],
       parkPoints: 0,
       showPhotos: false,
-      myPhotoUris: []
+      myPhotoUris: [],
+      disToPark: Number(Math.round(this.props.getDistance(this.props.location.coords, this.props.item.info.geometry.location)).toFixed(0))
     }
   }
 
@@ -97,6 +97,7 @@ class ListCard extends React.Component {
   render(){
     return (
     <Card
+      containerStyle={{borderRadius: 25}}
       style={{flex:1, justifyContent: 'center', borderTopLeftRadius: 10}}
       title={`${this.props.item.info.name}  ${this.state.parkPoints} pts.`}
       image={{uri: this.props.item.url}}
@@ -154,7 +155,7 @@ class ListCard extends React.Component {
         />
 
         {
-          Math.round(this.props.getDistance(this.props.location.coords, this.props.item.info.geometry.location)).toFixed(0) < 200
+          this.state.disToPark < 200
         ? <Icon
             containerStyle={{flex:1}}
             iconStyle={{flex:1, paddingVertical: 10}}
@@ -192,7 +193,10 @@ class ListCard extends React.Component {
 
       <View style={{flex: 0.5, flexDirection: 'row'}}>
         <Text >
-          {`${Math.round(this.props.getDistance(this.props.location.coords, this.props.item.info.geometry.location)).toFixed(0)}m away`}
+          { this.state.disToPark > 1000
+            ? `${this.state.disToPark/1000}km away`
+            : `${this.state.disToPark}m away`
+          }
         </Text>
       </View>
 
@@ -222,10 +226,10 @@ class ListCard extends React.Component {
           />
           : null
         }
-        <Divider style={{ backgroundColor: '#8e8e93', marginTop: 10}} />
         {
           this.state.showActivs
           ? <FlatList
+            style={{backgroundColor: '#f2f2f2', marginTop: 5}}
             horizontal
             data={this.props.activs}
             keyExtractor={(item, index) => index.toString()}
@@ -254,11 +258,12 @@ class ListCard extends React.Component {
          this.state.showPhotos
          ? this.state.myPhotoUris.length
           ? <FlatList
+             style={{marginTop: 5}}
              horizontal
              data={this.state.myPhotoUris}
              keyExtractor={(item, index) => index.toString()}
              renderItem={({item}) => (
-               <View style={{alignItems: 'center', justifyContent:'center'}}>
+               <View style={{alignItems: 'center', justifyContent:'center', marginHorizontal: 5}}>
                <TouchableOpacity
                  style={{height:100, width:100}}
                  onPress={() => {
@@ -277,7 +282,7 @@ class ListCard extends React.Component {
                      ]
                    );
                  }}>
-                  <Image source={{uri: item.uri}} style={{height:100, width:100}} />
+                  <Image source={{uri: item.uri}} style={{height:100, width:100, borderRadius: 5}} />
                 </TouchableOpacity>
                </View>
              )}

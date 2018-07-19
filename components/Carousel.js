@@ -59,8 +59,12 @@ class Carousel extends Component {
         >
 
           <Screen setError={(err) => this.setState({error: err})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.currentPark.info} parkURL={this.props.currentPark.url} index={0} />
-          <Screen setError={(err) => this.setState({error: err})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.nextPark.info} parkURL={this.props.nextPark.url} index={1} />
-          <Screen setError={(err) => this.setState({error: err})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.prevPark.info} parkURL={this.props.prevPark.url} index={2} />
+          {this.props.nextPark
+          ? <Screen setError={(err) => this.setState({error: err})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.nextPark.info} parkURL={this.props.nextPark.url} index={1} />
+          : null}
+          {this.props.prevPark
+          ? <Screen setError={(err) => this.setState({error: err})} authState={this.props.authState} xOffset={xOffset} my_list={this.props.my_list} add_to_m_l={this.props.add_to_m_l} park={this.props.prevPark.info} parkURL={this.props.prevPark.url} index={2} />
+          : null}
         </Animated.ScrollView>
       );
     } else if(this.state.error === 'inList') {
